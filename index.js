@@ -240,15 +240,9 @@ function replaceErrorStackUsingSourceMap(error){
 	var trace = new TraceError(error);
 
 	trace.callSites.forEach(wrapCallSite);
+	trace.source = getErrorSource(trace);
 
-	var source = getErrorSource(trace);
-	if( source ){
-    	console.error(''); // just for \n
-    	console.error(source);
-  	}
-
-  	console.error(trace.toString());
-  	process.exit(1);
+	return trace;
 }
 
-process.on('uncaughtException', replaceErrorStackUsingSourceMap);
+module.exports = replaceErrorStackUsingSourceMap;
