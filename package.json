@@ -1,12 +1,12 @@
 {
-	"name": "node-sourcemap",
-	"version": "0.0.1",
-	"description": "enable source-map in node error stack",
-	"dependencies": {
-		"source-map": "0.1.32"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/dmail/node-sourcemap"
-	}
+  "name": "node-sourcemap",
+  "version": "0.0.2",
+  "description": "enable source-map in node error stack",
+  "dependencies": {
+    "source-map": "0.1.32"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmail/node-sourcemap"
+  }
 }
