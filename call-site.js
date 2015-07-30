@@ -9,8 +9,11 @@ var CallSite = {
 	line: null,
 	column: null,
 	typeName: null,
-	evalOrigin: null,
 	sourceURL: null,
+
+	evalFileName: null,
+	evalLineNumber: null,
+	evalColumnNumber: null,
 
 	constructor: function(properties){
 		properties = properties || {};
@@ -36,8 +39,13 @@ var CallSite = {
 		return Boolean(this.fromToplevel);
 	},
 
+	// returns callsite corresponding to the eval call origin
 	getEvalOrigin: function(){
-		return this.evalOrigin;
+		return new this({
+			fileName: this.evalFileName,
+			line: this.evalLineNumber,
+			column: this.evalColumnNumber
+		});
 	},
 
 	getFileName: function(){
@@ -87,7 +95,7 @@ var CallSite = {
 			fileName = this.getScriptNameOrSourceURL();
 			if( !fileName && this.isEval() ){
 				fileLocation = this.getEvalOrigin();
-				fileLocation+= ", ";  // Expecting source position to follow.
+				fileLocation+= ", "; // Expecting source position to follow.
 			}
 
 			if( fileName ){
@@ -152,48 +160,123 @@ var CallSite = {
 CallSite.constructor.prototype = CallSite;
 CallSite = CallSite.constructor;
 
+function parseLocation(location){
+	var match = location.match(/^(.+):(\d+):(\d+)$/);
+
+	return {
+		fileName: match[1],
+		line: parseInt(match[2], 10),
+		column: parseInt(match[3], 10)
+	};
+}
+
+function assignLocation(properties, location){
+	properties.fileName = location.fileName;
+	properties.line = location.line;
+	properties.column = location.column;
+}
+
+function assignEvalLocation(properties, location){
+	properties.evalFileName = location.fileName;
+	properties.evalLineNumber = location.line;
+	properties.evalColumnNumber = location.column;
+}
+
+function mapEvalOrigin(parts){
+	var location = parts.location;
+
+	if( location.indexOf('eval at ') === 0 ){
+		var evalMatch = location.match(/^eval at ([^ ]+) \((.+)?\)$/);
+
+		parts.name = evalMatch[1];
+		parts.location = evalMatch[2];
+		mapEvalOrigin(parts);
+	}
+}
+
+function parseEval(location){
+	var parts = {}, match = location.match(/^eval at ([^ ]+) \((.+)?\), (.+)$/);
+
+	parts.name = match[1];
+	parts.location = match[2];
+	parts.origin = match[3];
+
+	mapEvalOrigin(parts);
+
+	return parts;
+}
+
 CallSite.parse = function(line){
-	var properties = {}, lineMatch;
+	var properties = {};
 
 	if( line.match(/^\s*[-]{4,}$/) ){
 		properties.fileName = line;
 	}
-	else if( lineMatch = line.match(/at (?:(.+)\s+)?\(?(?:(.+?):(\d+):(\d+)|([^)]+))\)?/) ){
-		var object = null;
-		var method = null;
-		var functionName = null;
-		var typeName = null;
-		var methodName = null;
-		var isNative = lineMatch[5] === 'native';
+	else{
+		var lineMatch = line.match(/^\s+at\s+(?:([^ ]+)\s+)?\((.+)?\)$/);
+		if( lineMatch ){
+			var callNames = lineMatch[1];
+			var callLocation = lineMatch[2];
 
-		if( lineMatch[1] ){
-			var methodMatch = lineMatch[1].match(/([^\.]+)(?:\.(.+))?/);
-			object = methodMatch[1];
-			method = methodMatch[2];
-			functionName = lineMatch[1];
-			typeName = 'Object';
-			properties.fromToplevel = true;
+			if( callNames ){
+				var names = callNames.match(/(\w+)?(?:\.(.+))?/);
+
+				properties.functionName = callNames;
+
+				properties.methodName = names[2];
+				if( properties.methodName ){
+					properties.typeName = names[1];
+				}
+				else{
+					properties.typeName = 'Object';
+				}
+			}
+
+			if( callLocation ){
+				// CallLocation examples
+				// eval at <anonymous> (C:\Users\Damien\Documents\GitHub\source-ap-node-error\test.js:4:2), <anonymous>:1:1
+				// module.js:460:26
+
+				if( callLocation === 'native' ){
+					properties.isNative = true;
+				}
+				else{
+					var location;
+
+					if( callLocation.indexOf('eval at ') === 0 ){
+						var evalParts = parseEval(callLocation);
+						var evalName = evalParts.name;
+						var evalLocation = parseLocation(evalParts.origin);
+
+						location = parseLocation(evalParts.location);
+
+						properties.isEval = true;
+						assignLocation(properties, location);
+						assignEvalLocation(properties, evalLocation);
+					}
+					else if( properties.functionName === 'eval' ){
+						location = parseLocation(callLocation);
+
+						assignLocation(properties, location);
+						assignEvalLocation(properties, location);
+					}
+					else{
+						location = parseLocation(callLocation);
+
+						assignLocation(properties, location);
+					}
+				}
+			}
+
+			if( properties.functionName === 'eval' ){
+				properties.isEval = true;
+			}
+
+			if( properties.methodName === '<anonymous>' ){
+				properties.methodName = null;
+				properties.functionName = '';
+			}
 		}
-
-		if( method ){
-			typeName = object;
-			methodName = method;
-		}
-
-		if( method === '<anonymous>' ){
-			methodName = null;
-			functionName = '';
-		}
-
-		properties = {
-			fileName: lineMatch[2] || null,
-			line: parseInt(lineMatch[3], 10) || null,
-			functionName: functionName,
-			typeName: typeName,
-			methodName: methodName,
-			column: parseInt(lineMatch[4], 10) || null,
-			'native': isNative,
-		};
 	}
 
 	return new CallSite(properties);
