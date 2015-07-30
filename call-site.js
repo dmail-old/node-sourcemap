@@ -238,7 +238,7 @@ CallSite.parse = function(line){
 				// module.js:460:26
 
 				if( callLocation === 'native' ){
-					properties.isNative = true;
+					properties.fromNative = true;
 				}
 				else{
 					var location;
@@ -250,7 +250,7 @@ CallSite.parse = function(line){
 
 						location = parseLocation(evalParts.location);
 
-						properties.isEval = true;
+						properties.fromEval = true;
 						assignLocation(properties, location);
 						assignEvalLocation(properties, evalLocation);
 					}
@@ -269,7 +269,7 @@ CallSite.parse = function(line){
 			}
 
 			if( properties.functionName === 'eval' ){
-				properties.isEval = true;
+				properties.fromEval = true;
 			}
 
 			if( properties.methodName === '<anonymous>' ){
