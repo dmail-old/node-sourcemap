@@ -69,7 +69,7 @@ function updatePropertiesFromCallSites(error, callSites){
 }
 
 function mapErrorStack(error, transformer){
-	if( error instanceof Error ){
+	if( error && typeof error.stack === 'string' ){
 		var callSites = CallSite.parseStack(error.stack);
 
 		transformCallSites(callSites, transformer);

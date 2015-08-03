@@ -41,7 +41,7 @@ var CallSite = {
 
 	// returns callsite corresponding to the eval call origin
 	getEvalOrigin: function(){
-		return new this({
+		return new this.constructor({
 			fileName: this.evalFileName,
 			line: this.evalLineNumber,
 			column: this.evalColumnNumber
@@ -279,12 +279,12 @@ CallSite.parse = function(line){
 		}
 	}
 
-	return new CallSite(properties);
+	return new this(properties);
 };
 
 CallSite.parseAll = function(lines){
 	return lines.map(function(line){
-		return CallSite.parse(line);
+		return this.parse(line);
 	}, this).filter(function(callSite){
 		return Boolean(callSite);
 	});
