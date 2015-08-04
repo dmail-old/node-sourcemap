@@ -1,6 +1,6 @@
 {
   "name": "node-sourcemap",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "enable source-map in node error stack",
   "dependencies": {
     "node-strakctrace": "*",
