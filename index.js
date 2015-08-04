@@ -2,7 +2,7 @@ var SourceMapConsumer = require('source-map').SourceMapConsumer;
 var path = require('path');
 var fs = require('fs');
 var url = require('url');
-var mapErrorStack = require('./map-error-stack');
+var stackTrace = require('node-stacktrace');
 
 // Maps a file path to a string containing the file contents
 var fileContentsCache = {};
@@ -181,7 +181,7 @@ function mapCallSite(callSite){
 function transformError(error, readSource){
 	readFile = readSource || function(){};
 
-	return mapErrorStack(error, mapCallSite);
+	stackTrace.forEach(error, mapCallSite);
 }
 
 module.exports = {

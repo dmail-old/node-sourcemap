@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "enable source-map in node error stack",
   "dependencies": {
+    "node-strakctrace": "*",
     "source-map": "0.1.32"
   },
   "repository": {
