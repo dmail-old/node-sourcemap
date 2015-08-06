@@ -4,4 +4,4 @@ This module add support for source map on error stack even with node > 0.11 wher
 
 ## Dependents
 
-- [node-stacktrace](./node-stacktrace)
+- [node-stacktrace](/node-stacktrace)
