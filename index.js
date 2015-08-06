@@ -93,8 +93,6 @@ function retrieveSourceMap(source){
 }
 
 function mapSourcePosition(position){
-	position.source = position.source.replace('!transpiled', '');
-
 	var sourceMap = sourceMapCache[position.source];
 	if( !sourceMap ){
 		// Call the (overrideable) retrieveSourceMap function to get the source map.
@@ -181,6 +179,7 @@ function mapCallSite(callSite){
 function transformError(error, readSource){
 	readFile = readSource || function(){};
 	StackTrace.install(error).forEach(mapCallSite);
+	return error;
 }
 
 module.exports = {
