@@ -1,6 +1,6 @@
 {
   "name": "node-sourcemap",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "enable source-map in node error stack",
   "dependencies": {
     "node-strakctrace": "git+https://github.com/dmail/node-stacktrace",
