@@ -3,8 +3,12 @@
   "version": "0.1.2",
   "description": "enable source-map in node error stack",
   "dependencies": {
+    "postlink": "*",
     "node-strakctrace": "git+https://github.com/dmail/node-stacktrace",
     "source-map": "*"
+  },
+  "scripts": {
+    "postinstall": "postlink"
   },
   "repository": {
     "type": "git",
