@@ -4,7 +4,7 @@
   "description": "enable source-map in node error stack",
   "dependencies": {
     "postlink": "git+https://github.com/dmail/postlink",
-    "node-strakctrace": "git+https://github.com/dmail/node-stacktrace",
+    "node-stacktrace": "git+https://github.com/dmail/node-stacktrace",
     "source-map": "*"
   },
   "scripts": {
