@@ -162,8 +162,8 @@ function mapCallSite(callSite){
 		});
 
 		callSite.source = position.source;
-		callSite.line = position.line;
-		callSite.column = position.column + 1;
+		callSite.lineNumber = position.line;
+		callSite.columnNumber = position.column + 1;
 	}
 
 	// Code called using eval() needs special handling
