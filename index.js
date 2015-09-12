@@ -174,11 +174,16 @@ function mapCallSite(callSite){
 			mapCallSite(evalOrigin);
 		}
 	}
+
+	//console.log('mapping', source, 'into', callSite.source);
 }
 
 function transformError(error, readSource){
 	readFile = readSource || function(){};
-	StackTrace.install(error).forEach(mapCallSite);
+
+	var stackTrace = StackTrace.install(error);
+	stackTrace.forEach(mapCallSite);
+
 	return error;
 }
 
