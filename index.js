@@ -181,8 +181,19 @@ function mapCallSite(callSite){
 function transformError(error, readSource){
 	readFile = readSource || function(){};
 
-	var stackTrace = StackTrace.install(error);
-	stackTrace.forEach(mapCallSite);
+	var stackTrace;
+
+	if( error && 'stackTrace' in error ){
+		stackTrace = error.stackTrace;
+	}
+	else{
+		stackTrace = StackTrace.install(error);
+	}
+
+	if( !stackTrace.sourceMapped ){
+		stackTrace.forEach(mapCallSite);
+		stackTrace.sourceMapped = true;
+	}
 
 	return error;
 }
