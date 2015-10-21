@@ -183,7 +183,7 @@ function transformError(error, readSource){
 
 	var stackTrace;
 
-	if( error && 'stackTrace' in error ){
+	if( error && typeof error == 'object' && 'stackTrace' in error ){
 		stackTrace = error.stackTrace;
 	}
 	else{
