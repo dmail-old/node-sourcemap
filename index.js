@@ -143,7 +143,7 @@ function mapSourcePosition(position){
 }
 
 function mapCallSite(callSite){
-	var source = callSite.getFileName() || callSite.getScriptNameOrSourceURL();
+	var source = callSite.getScriptNameOrSourceURL() || callSite.getFileName();
 
 	if( source ){
 		var line = callSite.getLineNumber();
@@ -166,7 +166,29 @@ function mapCallSite(callSite){
 		callSite.columnNumber = position.column + 1;
 	}
 
+	/*
+	if( callSite.isEval() ){
+		console.log('handling isEval calls');
+
+		var evalOrigin = callSite.getEvalOrigin();
+		var evalSsource = evalOrigin.getFileName() || evalOrigin.getScriptNameOrSourceURL();
+		var evalLine = evalOrigin.getLineNumber();
+		var evalColumn = evalOrigin.getColumnNumber() - 1;
+
+		var evalPosition =  mapSourcePosition({
+			source: source,
+			line: evalSsource,
+			column: evalColumn
+		});
+
+		callSite.evalFileName = evalPosition.source;
+		callSite.evalLineNumber = evalPosition.line;
+		callSite.evalColumnNumber = evalPosition.column + 1;
+	}
+	*/
+
 	// Code called using eval() needs special handling
+	/*
 	if( callSite.isEval() ){
 		var evalOrigin = callSite.getEvalOrigin();
 
@@ -174,30 +196,24 @@ function mapCallSite(callSite){
 			mapCallSite(evalOrigin);
 		}
 	}
+	*/
 
 	//console.log('mapping', source, 'into', callSite.source);
 }
 
-function transformError(error, readSource){
-	readFile = readSource || function(){};
-
-	var stackTrace;
-
-	if( error && typeof error == 'object' && 'stackTrace' in error ){
-		stackTrace = error.stackTrace;
-	}
-	else{
-		stackTrace = StackTrace.install(error);
-	}
-
-	if( !stackTrace.sourceMapped ){
-		stackTrace.forEach(mapCallSite);
-		stackTrace.sourceMapped = true;
-	}
-
-	return error;
-}
+var installed = false;
 
 module.exports = {
-	transformError: transformError
+	install: function(readSource){
+		if( installed ){
+			throw new Error('sourcemap already installed');
+		}
+		else{
+			installed = true;
+
+			readFile = readSource || function(){};
+
+			StackTrace.setTransformer(mapCallSite);
+		}
+	}
 };
