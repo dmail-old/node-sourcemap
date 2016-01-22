@@ -142,7 +142,7 @@ function mapSourcePosition(position){
 	return position;
 }
 
-function mapCallSite(callSite){
+function mapCallSite(callSite, index, callSites){
 	var source = callSite.getScriptNameOrSourceURL() || callSite.getFileName();
 
 	if( source ){
@@ -151,8 +151,9 @@ function mapCallSite(callSite){
 
 		// Fix position in Node where some (internal) code is prepended.
 		// See https://github.com/evanw/node-source-map-support/issues/36
-		if( line === 1 && typeof process !== 'undefined' && !callSite.isEval() ) {
-			column-= 62;
+		var fromModule = typeof process !== 'undefined' && callSites.length && callSites[callSites.length - 1].getFileName() === 'module.js';
+		if( fromModule && line === 1 ) {
+			column-= 63;
 		}
 
 		var position = mapSourcePosition({
@@ -204,6 +205,8 @@ function mapCallSite(callSite){
 var installed = false;
 
 module.exports = {
+	StackTrace: StackTrace,
+
 	install: function(readSource){
 		if( installed ){
 			throw new Error('sourcemap already installed');
