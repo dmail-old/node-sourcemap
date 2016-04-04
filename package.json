@@ -4,7 +4,7 @@
   "description": "enable source-map in node error stack",
   "license": "UNLICENSED",
   "dependencies": {
-    "node-stacktrace": "git+https://github.com/dmail/node-stacktrace",
+    "@dmail/node-stacktrace": "git+https://github.com/dmail/node-stacktrace",
     "source-map": "*"
   },
   "scripts": {
