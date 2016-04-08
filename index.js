@@ -2,7 +2,7 @@ var SourceMapConsumer = require('source-map').SourceMapConsumer;
 var path = require('path');
 var fs = require('fs');
 var url = require('url');
-var StackTrace = require('@dmail/node-stacktrace');
+var StackTrace = require('node-stacktrace');
 
 // Maps a file path to a string containing the file contents
 var fileContentsCache = {};
